@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Kehadiran Wafa</title>
+    <link rel="icon" type="image/png" href="logosit.png">
+    <link rel="shortcut icon" type="image/png" href="logosit.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+    :root {
+        --primary: #0284c7;      
+        --accent: #06b6d4;        
+        --bg-page: #f0f9ff;      
+        --glass-bg: rgba(255, 255, 255, 0.95); 
+        --text-main: #334155;    
+        --input-bg: #ffffff;     
+        --shadow: 0 10px 40px -10px rgba(2, 132, 199, 0.2); 
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--bg-page);
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.15) 0%, transparent 40%);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 15px;
+        margin: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 600px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid white;
+        border-radius: 24px;
+        padding: 30px 20px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .container::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .header { text-align: center; margin-bottom: 25px; }
+    .school-logo {
+        width: 90px;
+        height: auto;
+        display: block;
+        margin: 0 auto 15px auto;
+    }
+    .header h2 {
+        font-size: 1.6rem; margin: 0;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+    .header p { color: #64748b; font-size: 0.85rem; margin-top: 5px; font-weight: 500; letter-spacing: 1px; }
+
+    .input-group { margin-bottom: 18px; }
+    .input-group label {
+        display: block; margin-bottom: 6px; font-size: 0.8rem;
+        font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .form-control {
+        width: 100%; padding: 12px 14px;
+        background: var(--input-bg); border: 2px solid #e2e8f0;
+        border-radius: 12px; color: var(--text-main);
+        font-size: 0.95rem; font-family: 'Outfit', sans-serif;
+        transition: all 0.25s ease;
+    }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1); }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+
+    /* --- LIST SISWA STYLING --- */
+    .student-list-container {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px;
+        max-height: 50vh;
+        overflow-y: auto;
+        margin-bottom: 18px;
+        display: none; /* Disembunyikan sampai pengampu dipilih */
+    }
+
+    .student-item {
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        background: white;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s;
+    }
+    
+    .student-name {
+        font-weight: 700; font-size: 0.95rem; color: #334155;
+        flex: 1; padding-right: 15px; line-height: 1.4;
+    }
+
+    .attendance-options {
+        display: flex; gap: 6px; flex-shrink: 0; 
+    }
+
+    .radio-option { position: relative; width: auto; height: auto; } 
+    .radio-option input { 
+        position: absolute; width: 100%; height: 100%; 
+        opacity: 0; cursor: pointer; z-index: 2; 
+    }
+
+    .radio-label {
+        width: 40px !important; height: 40px !important;
+        display: grid !important; place-content: center !important; place-items: center !important;
+        padding: 0 !important; margin: 0 !important; line-height: 1 !important; text-align: center !important;
+        background: #fff; border: 2px solid #e2e8f0; border-radius: 8px;
+        font-weight: 800; font-size: 0.9rem; cursor: pointer;
+        transition: all 0.2s ease; color: #94a3b8;
+        -webkit-user-select: none; user-select: none;
+    }
+
+    .radio-label:hover { border-color: #cbd5e1; color: #64748b; }
+
+    /* STATE ACTIVE */
+    .radio-option input[value="H"]:checked + .radio-label { background: var(--success); border-color: var(--success); color: white; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3); transform: translateY(-2px); }
+    .radio-option input[value="S"]:checked + .radio-label { background: var(--warning); border-color: var(--warning); color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
+    .radio-option input[value="I"]:checked + .radio-label { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3); transform: translateY(-2px); }
+    .radio-option input[value="A"]:checked + .radio-label { background: var(--danger); border-color: var(--danger); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); transform: translateY(-2px); }
+
+    .btn-submit {
+        width: 100%; padding: 16px; margin-top: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; border: none; border-radius: 12px;
+        font-size: 1rem; font-weight: 800; letter-spacing: 1px;
+        cursor: pointer; box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4);
+        text-transform: uppercase; transition: transform 0.2s;
+    }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* FOOTER */
+    .footer {
+        text-align: center;
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: auto;
+        padding-bottom: 20px;
+    }
+    .footer span { font-weight: 800; color: var(--primary); }
+
+    /* RESPONSIVE MOBILE FIX */
+    @media (max-width: 480px) {
+        .container { padding: 25px 15px; }
+        .student-item { flex-direction: column; align-items: flex-start; padding: 15px; gap: 12px; }
+        .student-name { font-size: 1rem; padding-right: 0; width: 100%; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 0; }
+        .attendance-options { width: 100%; justify-content: space-between; gap: 8px; }
+        .radio-label { width: 100% !important; height: 44px !important; font-size: 1rem; }
+        .radio-option { flex: 1; }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="logosit.png" alt="Logo SIT" class="school-logo">
+            <h2>Jurnal Kehadiran Wafa</h2>
+            <p>Smart Input System v2.0</p>
+        </div>
+
+        <form id="attendanceForm">
+            <div class="input-group">
+                <label for="tanggal">Tanggal</label>
+                <input type="date" id="tanggal" class="form-control" required>
+            </div>
+
+            <div class="input-group">
+                <label for="pengampu">Pilih Nama Pengampu</label>
+                <select id="pengampu" class="form-control" required>
+                    <option value="" disabled selected>Memuat data pengampu...</option>
+                </select>
+            </div>
+
+            <div class="student-list-container" id="studentListContainer">
+                </div>
+
+            <div class="input-group">
+                <label for="catatan">Catatan</label>
+                <textarea id="catatan" class="form-control" placeholder="Tuliskan catatan tambahan jika ada..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Kirim Data</button>
+        </form>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 <span>aktechmaster</span> <br>Designed & Developed by aktechmaster
+    </div>
+
+    <script>
+        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA!
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzeEVo8LkrJjGzCsoXDbg36GNSpiCrC7K-GYuJew8UAIccMaBuiFCfuZH1CfagcKKqPAA/exec'; 
+        
+        const form = document.getElementById('attendanceForm');
+        const pengampuSelect = document.getElementById('pengampu');
+        const studentContainer = document.getElementById('studentListContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        let databaseSiswa = {}; // Untuk menyimpan data dari Google Sheets
+
+        // 1. Set Tanggal Hari Ini Default
+        document.getElementById('tanggal').valueAsDate = new Date();
+
+        // 2. Fetch Data dari Google Sheets saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch(scriptURL);
+                databaseSiswa = await response.json();
+                
+                // Populate Dropdown Pengampu
+                pengampuSelect.innerHTML = '<option value="" disabled selected>-- Pilih Pengampu --</option>';
+                for (let pengampu in databaseSiswa) {
+                    let option = document.createElement('option');
+                    option.value = pengampu;
+                    option.textContent = pengampu;
+                    pengampuSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Gagal memuat data:', error);
+                pengampuSelect.innerHTML = '<option value="" disabled>Gagal memuat data. Periksa koneksi.</option>';
+            }
+        });
+
+        // 3. Render Daftar Peserta saat Pengampu dipilih
+        pengampuSelect.addEventListener('change', function() {
+            const selectedPengampu = this.value;
+            const pesertaList = databaseSiswa[selectedPengampu] || [];
+            
+            studentContainer.innerHTML = ''; // Kosongkan dulu
+            
+            if (pesertaList.length > 0) {
+                studentContainer.style.display = 'block';
+                pesertaList.forEach((peserta, index) => {
+                    const itemHTML = `
+                        <div class="student-item">
+                            <div class="student-name">${peserta}</div>
+                            <div class="attendance-options">
+                                <label class="radio-option">
+                                    <input type="radio" name="status_${index}" value="H" required>
+                                    <div class="radio-label">H</div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="status_${index}" value="S">
+                                    <div class="radio-label">S</div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="status_${index}" value="I">
+                                    <div class="radio-label">I</div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="status_${index}" value="A">
+                                    <div class="radio-label">A</div>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                    studentContainer.insertAdjacentHTML('beforeend', itemHTML);
+                });
+            } else {
+                studentContainer.style.display = 'none';
+            }
+        });
+
+        // 4. Handle Submit Form
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validasi apakah daftar peserta sudah terisi
+            const selectedPengampu = pengampuSelect.value;
+            if (!selectedPengampu || !databaseSiswa[selectedPengampu]) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            const pesertaList = databaseSiswa[selectedPengampu];
+            let dataPeserta = [];
+            
+            // Kumpulkan data radio button
+            pesertaList.forEach((peserta, index) => {
+                const statusElement = document.querySelector(`input[name="status_${index}"]:checked`);
+                dataPeserta.push({
+                    nama: peserta,
+                    status: statusElement ? statusElement.value : 'A' // Default A jika entah bagaimana terlewat (meski ada required)
+                });
+            });
+
+            // Susun Payload
+            const payload = {
+                tanggal: document.getElementById('tanggal').value,
+                pengampu: selectedPengampu,
+                catatan: document.getElementById('catatan').value,
+                peserta: dataPeserta
+            };
+
+            try {
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain menghindari preflight CORS issue
+                });
+
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Alhamdulillah data sudah tersimpan',
+                        icon: 'success',
+                        confirmButtonColor: '#0284c7',
+                        confirmButtonText: 'Oke'
+                    }).then(() => {
+                        form.reset();
+                        studentContainer.style.display = 'none';
+                        document.getElementById('tanggal').valueAsDate = new Date();
+                    });
+                } else {
+                    throw new Error("Terjadi kesalahan di server");
+                }
+            } catch (error) {
+                console.error('Error!', error.message);
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Data gagal disimpan, periksa koneksi internet Anda.',
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
+                });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Kirim Data';
+            }
+        });
+    </script>
+</body>
+</html>
