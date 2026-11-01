@@ -1,5 +1,5 @@
 // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT DB_WAFA ANDA!
-const scriptURL = 'https://script.google.com/macros/s/AKfycbx49XrGWi1ifQe-vT6o4zR6-1AeQfxjPvdXY5TvGs43rJ0PCrwet4oWZQsxZpBjYs8E/execc'; 
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx49XrGWi1ifQe-vT6o4zR6-1AeQfxjPvdXY5TvGs43rJ0PCrwet4oWZQsxZpBjYs8E/exec'; 
 
 const form = document.getElementById('attendanceForm');
 const pengampuSelect = document.getElementById('pengampu');
@@ -13,6 +13,7 @@ document.getElementById('tanggal').valueAsDate = new Date();
 // 2. Fetch Data dari Google Sheets saat halaman dimuat
 window.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Mengambil data pemetaan Pengampu -> Daftar Guru dari Apps Script
         const response = await fetch(scriptURL);
         databaseSiswa = await response.json();
         
@@ -30,7 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// 3. Render Daftar Peserta saat Pengampu dipilih (Default status: Hadir / H)
+// 3. Render Daftar Peserta saat Pengampu dipilih
 pengampuSelect.addEventListener('change', function() {
     const selectedPengampu = this.value;
     const pesertaList = databaseSiswa[selectedPengampu] || [];
@@ -45,7 +46,7 @@ pengampuSelect.addEventListener('change', function() {
                     <div class="student-name">${peserta}</div>
                     <div class="attendance-options">
                         <label class="radio-option">
-                            <input type="radio" name="status_${index}" value="H" checked required>
+                            <input type="radio" name="status_${index}" value="H" required>
                             <div class="radio-label">H</div>
                         </label>
                         <label class="radio-option">
@@ -74,6 +75,7 @@ pengampuSelect.addEventListener('change', function() {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Validasi apakah pengampu & peserta valid
     const selectedPengampu = pengampuSelect.value;
     if (!selectedPengampu || !databaseSiswa[selectedPengampu]) return;
 
@@ -83,14 +85,16 @@ form.addEventListener('submit', async (e) => {
     const pesertaList = databaseSiswa[selectedPengampu];
     let dataPeserta = [];
     
+    // Kumpulkan data radio button dari tiap guru
     pesertaList.forEach((peserta, index) => {
         const statusElement = document.querySelector(`input[name="status_${index}"]:checked`);
         dataPeserta.push({
             nama: peserta,
-            status: statusElement ? statusElement.value : 'H'
+            status: statusElement ? statusElement.value : 'A'
         });
     });
 
+    // Susun Payload (menambahkan parameter action 'simpanJurnal' agar tepat sasaran di backend)
     const payload = {
         action: 'simpanJurnal',
         tanggal: document.getElementById('tanggal').value,
