@@ -1,11 +1,11 @@
-// GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA!
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzeEVo8LkrJjGzCsoXDbg36GNSpiCrC7K-GYuJew8UAIccMaBuiFCfuZH1CfagcKKqPAA/exec'; 
+// GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT DB_WAFA ANDA!
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx49XrGWi1ifQe-vT6o4zR6-1AeQfxjPvdXY5TvGs43rJ0PCrwet4oWZQsxZpBjYs8E/exec'; 
 
 const form = document.getElementById('attendanceForm');
 const pengampuSelect = document.getElementById('pengampu');
 const studentContainer = document.getElementById('studentListContainer');
 const submitBtn = document.getElementById('submitBtn');
-let databaseSiswa = {}; // Untuk menyimpan data dari Google Sheets
+let databaseSiswa = {}; // Untuk menyimpan data pengampu & guru dari Google Sheets
 
 // 1. Set Tanggal Hari Ini Default
 document.getElementById('tanggal').valueAsDate = new Date();
@@ -13,6 +13,7 @@ document.getElementById('tanggal').valueAsDate = new Date();
 // 2. Fetch Data dari Google Sheets saat halaman dimuat
 window.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Mengambil data pemetaan Pengampu -> Daftar Guru dari Apps Script
         const response = await fetch(scriptURL);
         databaseSiswa = await response.json();
         
@@ -35,7 +36,7 @@ pengampuSelect.addEventListener('change', function() {
     const selectedPengampu = this.value;
     const pesertaList = databaseSiswa[selectedPengampu] || [];
     
-    studentContainer.innerHTML = ''; // Kosongkan dulu
+    studentContainer.innerHTML = ''; // Kosongkan konteks sebelumnya
     
     if (pesertaList.length > 0) {
         studentContainer.style.display = 'block';
@@ -74,7 +75,7 @@ pengampuSelect.addEventListener('change', function() {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Validasi apakah daftar peserta sudah terisi
+    // Validasi apakah pengampu & peserta valid
     const selectedPengampu = pengampuSelect.value;
     if (!selectedPengampu || !databaseSiswa[selectedPengampu]) return;
 
@@ -84,7 +85,7 @@ form.addEventListener('submit', async (e) => {
     const pesertaList = databaseSiswa[selectedPengampu];
     let dataPeserta = [];
     
-    // Kumpulkan data radio button
+    // Kumpulkan data radio button dari tiap guru
     pesertaList.forEach((peserta, index) => {
         const statusElement = document.querySelector(`input[name="status_${index}"]:checked`);
         dataPeserta.push({
@@ -93,8 +94,9 @@ form.addEventListener('submit', async (e) => {
         });
     });
 
-    // Susun Payload
+    // Susun Payload (menambahkan parameter action 'simpanJurnal' agar tepat sasaran di backend)
     const payload = {
+        action: 'simpanJurnal',
         tanggal: document.getElementById('tanggal').value,
         pengampu: selectedPengampu,
         catatan: document.getElementById('catatan').value,
@@ -110,10 +112,10 @@ form.addEventListener('submit', async (e) => {
 
         const result = await response.json();
         
-        if(result.status === 'success') {
+        if (result.status === 'success') {
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Alhamdulillah data sudah tersimpan',
+                text: 'Alhamdulillah data presensi sudah tersimpan',
                 icon: 'success',
                 confirmButtonColor: '#0284c7',
                 confirmButtonText: 'Oke'
@@ -123,7 +125,7 @@ form.addEventListener('submit', async (e) => {
                 document.getElementById('tanggal').valueAsDate = new Date();
             });
         } else {
-            throw new Error("Terjadi kesalahan di server");
+            throw new Error(result.message || "Terjadi kesalahan di server");
         }
     } catch (error) {
         console.error('Error!', error.message);
