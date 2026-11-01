@@ -46,7 +46,7 @@ pengampuSelect.addEventListener('change', function() {
                     <div class="student-name">${peserta}</div>
                     <div class="attendance-options">
                         <label class="radio-option">
-                            <input type="radio" name="status_${index}" value="H" required>
+                            <input type="radio" name="status_${index}" value="H" checked required>
                             <div class="radio-label">H</div>
                         </label>
                         <label class="radio-option">
@@ -90,11 +90,11 @@ form.addEventListener('submit', async (e) => {
         const statusElement = document.querySelector(`input[name="status_${index}"]:checked`);
         dataPeserta.push({
             nama: peserta,
-            status: statusElement ? statusElement.value : 'A'
+            status: statusElement ? statusElement.value : 'H'
         });
     });
 
-    // Susun Payload (menambahkan parameter action 'simpanJurnal' agar tepat sasaran di backend)
+    // Susun Payload
     const payload = {
         action: 'simpanJurnal',
         tanggal: document.getElementById('tanggal').value,
