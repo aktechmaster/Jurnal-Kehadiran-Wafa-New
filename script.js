@@ -1,5 +1,5 @@
 // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT DB_WAFA ANDA!
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzeEVo8LkrJjGzCsoXDbg36GNSpiCrC7K-GYuJew8UAIccMaBuiFCfuZH1CfagcKKqPAA/exec'; 
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx49XrGWi1ifQe-vT6o4zR6-1AeQfxjPvdXY5TvGs43rJ0PCrwet4oWZQsxZpBjYs8E/execc'; 
 
 const form = document.getElementById('attendanceForm');
 const pengampuSelect = document.getElementById('pengampu');
